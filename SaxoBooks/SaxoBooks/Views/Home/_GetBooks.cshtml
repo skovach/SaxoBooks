@@ -1,0 +1,12 @@
+﻿@model IEnumerable<SaxoBooks.Models.Book>
+<div id="bookResults">
+    @if (@Model != null)
+    {
+        foreach (var book in @Model)
+        {
+            <div class="col-md-3">
+                Book ISBN: @book.Isbn
+            </div>
+        }
+    }
+</div>

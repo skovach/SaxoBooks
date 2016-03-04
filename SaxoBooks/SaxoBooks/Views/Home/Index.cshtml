@@ -1,0 +1,26 @@
+﻿@model SaxoBooks.ViewModels.BooksViewModel
+@{
+    ViewBag.Title = "Saxo Books";
+}
+
+<div class="row">
+    @using (Ajax.BeginForm("GetBooks", "Home", new AjaxOptions()
+    {
+        HttpMethod = "POST",
+        InsertionMode = InsertionMode.Replace,
+        UpdateTargetId = "bookResults"
+    }))
+    {
+        <fieldset>
+            <div class="col-md-4">
+                @Html.TextAreaFor(x => x.IsbnNumbers, new { placeholder = "ISBNs", @class = "IsbnTextArea" })
+            </div>
+            <input type="submit" name="Get Books" style="float: right" />
+        </fieldset>
+    }
+    <div class="col-md-8 books">
+        @Html.Partial("_GetBooks")
+    </div>
+
+
+</div>
