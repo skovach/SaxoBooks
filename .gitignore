@@ -1,0 +1,36 @@
+# git ignore file
+
+# folders
+bin/
+obj/
+Deployments/
+Backup/
+Backup*/
+Downloads/
+packages/
+RequestReduceContent/
+_reduced/
+App_Data/
+.vs/
+
+# files
+*.suo
+*.user
+*.Publish.xml
+*.map
+*.svclog
+
+# Generated
+GeneratedAssemblyInfo.cs
+
+**/GeneratedAssemblyInfo.cs
+
+# VS backup
+Backup/
+
+
+ConnectionStrings.config
+**/ConnectionStrings.config
+/.version
+
+UpgradeLog*.htm
