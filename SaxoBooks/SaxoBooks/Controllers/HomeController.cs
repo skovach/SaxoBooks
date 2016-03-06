@@ -1,23 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web;
 using System.Web.Mvc;
-using Newtonsoft.Json;
-using SaxoBooks.Data;
 using SaxoBooks.Data.Repository;
+using SaxoBooks.Infrastructure;
 using SaxoBooks.Models;
+using WebGrease.Css.Extensions;
 
 namespace SaxoBooks.Controllers
 {
     public class HomeController : Controller
     {
         private readonly IRepository<Book> _booksRepository;
-        public HomeController(IRepository<Book> repository)
+        private readonly ISaxoBooksService _saxoService;
+
+        public HomeController(IRepository<Book> repository, ISaxoBooksService saxoService)
         {
             _booksRepository = repository;
+            _saxoService = saxoService;
+
         }
 
         public ActionResult Index()
@@ -25,46 +25,31 @@ namespace SaxoBooks.Controllers
             return View();
         }
 
-        [HttpPost]
-        public PartialViewResult GetBooks(string isbnNumbers = "")
+
+        public PartialViewResult GetBooks(string isbnNumbers)
         {
-            var isbns = isbnNumbers.Split('\n');
+            var isbns = GetListOfIsbns(isbnNumbers);
             var dbBooks = GetBooksFromDb(isbns);
 
-            var isbnsToRequest = isbns.Except(dbBooks.Select(x => x.Isbn));
+            var isbnsToRequest = isbns.Except(dbBooks.Select(x => x.Isbn)).ToList();
 
-            var booksFromService = GetBooksFromService(isbnsToRequest);
+            var booksFromService = _saxoService.GetBooksFromService(isbnsToRequest).Result;
 
+            booksFromService.ForEach(_booksRepository.AddOrUpdate);
+            _booksRepository.SaveChanges();
 
-            Random rand = new Random();
-            var books = new List<Book>();
-            for (int i = 0; i < 13; i++)
-            {
-                books.Add(new Book()
-                {
-                    Isbn = rand.Next().ToString()
-                });
-            }
-            return PartialView("_GetBooks", books);
+            return PartialView("_GetBooks", booksFromService);
         }
 
-        private async Task<IEnumerable<Book>> GetBooksFromService(IEnumerable<string> isbnsToRequest)
+        private List<Book> GetBooksFromDb(List<string> isbns)
         {
-            string uri = " http://api.saxo.com/v1";
-
-            using (HttpClient httpClient = new HttpClient())
-            {
-                var result = await httpClient.GetStringAsync(uri);
-                return JsonConvert.DeserializeObject<List<Book>>(result);
-            }
+            var result = _booksRepository.Query().Where(x => isbns.Contains(x.Isbn)).ToList();
+            return result;
         }
 
-
-        private List<Book> GetBooksFromDb(string[] isbns)
+        private List<string> GetListOfIsbns(string isbnNumbers)
         {
-            //var result = _booksRepository.Query().Where(x => isbns.Contains(x.Isbn)).ToList();
-            //return result;
-            return new List<Book>();
+            return isbnNumbers.Replace("\r", "").Split('\n').ToList();
         }
     }
 }

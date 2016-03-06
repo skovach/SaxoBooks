@@ -53,5 +53,7 @@ namespace SaxoBooks.Data.Repository
         /// </summary>
         /// <param name="entity">The entities collection.</param>
         void RemoveRange(IEnumerable<TEntity> entities);
+
+        void SaveChanges();
     }
 }

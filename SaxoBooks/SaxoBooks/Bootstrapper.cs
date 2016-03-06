@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Mvc;
 using SaxoBooks.Data.Repository;
+using SaxoBooks.Infrastructure;
 using SaxoBooks.Models;
 
 namespace SaxoBooks
@@ -25,7 +26,8 @@ namespace SaxoBooks
         {
             var container = new UnityContainer();
 
-            container.RegisterType<IRepository<Book>, Repository<Book>>();
+            container.RegisterType<IRepository<Book>, Repository<Book>>(new PerRequestLifetimeManager());
+            container.RegisterType<ISaxoBooksService, SaxoBooksService>(new PerRequestLifetimeManager());
            
             return container;
         }

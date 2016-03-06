@@ -7,7 +7,9 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using SaxoBooks.Data.Repository;
+using SaxoBooks.Infrastructure;
 using SaxoBooks.Models;
+using SaxoBooks.ViewModels;
 
 namespace SaxoBooks
 {
@@ -19,8 +21,8 @@ namespace SaxoBooks
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-
-            Bootstrapper.Initialise();    
+            
+            Bootstrapper.Initialise();
         }
     }
 }

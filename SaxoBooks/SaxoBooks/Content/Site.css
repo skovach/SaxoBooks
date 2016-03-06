@@ -23,9 +23,24 @@ select,
 div {
     display: inline-block;
 }
+
+.text-area-wrapper {
+    border-right: solid 2px black 
+}
+
 .IsbnTextArea {
-    border: 1px purple solid;
+    border: none;
     height: 750px;
     width: 300px;
     resize: none;
+}
+
+.bookResults {
+    border: blue 3px;
+    height: 100%;
+    margin: 5px;
+}
+
+.book-image-wrapper {
+
 }

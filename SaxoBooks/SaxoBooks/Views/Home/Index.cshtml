@@ -4,23 +4,65 @@
 }
 
 <div class="row">
-    @using (Ajax.BeginForm("GetBooks", "Home", new AjaxOptions()
-    {
-        HttpMethod = "POST",
-        InsertionMode = InsertionMode.Replace,
-        UpdateTargetId = "bookResults"
-    }))
-    {
-        <fieldset>
-            <div class="col-md-4">
-                @Html.TextAreaFor(x => x.IsbnNumbers, new { placeholder = "ISBNs", @class = "IsbnTextArea" })
-            </div>
-            <input type="submit" name="Get Books" style="float: right" />
-        </fieldset>
-    }
+    <div class="col-md-4 text-area-wrapper">
+        @*@using (Ajax.BeginForm("GetBooks", "Home", new AjaxOptions()
+        {
+            HttpMethod = "POST",
+            InsertionMode = InsertionMode.Replace,
+            UpdateTargetId = "bookResults"
+        }))
+        {
+
+            @Html.TextAreaFor(x => x.IsbnNumbers, new { placeholder = "ISBNs", @class = "IsbnTextArea" })
+            <input type="submit" text="Get Books" style="float: right" />
+        }*@
+        <textarea id="isbns" placeholder="Input Isbn13 numbers"> </textarea>
+        <a href="#" onclick="getPartialView('GetBooks', 'Home', '#bookResults')">Get</a>
+    </div>
     <div class="col-md-8 books">
         @Html.Partial("_GetBooks")
     </div>
 
 
 </div>
+
+<script type="text/javascript">
+    function getPartialView(action, controller, divId) {
+        var url = "/" + controller + "/" + action + "/";
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'text',
+            data: $("#isbns").val(),
+            success: function (data, textStatus, jqXHR) {
+                var ct = jqXHR.getResponseHeader("Content-Type");
+                var mx = ct.match("text\/html");
+                if (mx != null) {
+                    $(divId).html(data);
+                }
+                else {
+                    var res = data;
+                }
+            },
+            error: function (res) {
+                var data = res;
+            }
+        });
+    }
+
+    //var getBooks = $.ajax({
+    //    type: "GET",
+    //    url: "/Home/GetBooks/",
+    //    data: someArguments,
+    //    success: function (result) {
+
+    //        var data = result;
+
+    //        //$("#bookResults").html(result); //the HTML I returned from the controller
+    //    },
+    //    error: function (errorData) {
+    //        var data = errorData;
+    //        alert(data);
+    //    }
+    //});
+</script>
