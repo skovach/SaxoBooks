@@ -1,61 +1,24 @@
-﻿@model IEnumerable<SaxoBooks.Models.Book>
+﻿@model IEnumerable<SaxoBooks.Data.Models.Book>
 @{
     ViewBag.Title = "Saxo Books";
 }
 
 <div class="row">
-    <div class="col-md-4 text-area-wrapper">
-        <h1>Saxo Books Service</h1>
-        <textarea id="isbns" placeholder="Input Isbn numbers"></textarea>
-        <a href="#" onclick="getBooks(false)">Get</a>
+    <div class="col-md-4">
+        <div class="text-area-wrapper">
+            <h1>Saxo Books Service</h1>
+            <a href="#" class="get-books-button" onclick="getBooks(false)">Get Books</a>
+            <textarea id="isbns" class="isbn-text-area" placeholder="Input Isbn digits"></textarea>
+        </div>
     </div>
-    <div class="col-md-8 books">
+
+    <div class="col-md-8">
         @{Html.RenderPartial("_GetBooks");}
     </div>
+
     <div id="loading-img" style="text-align: center; display: none; margin-bottom: 20px;">
-        <img alt="Loading" src="@Url.Content("~/Content/Images/ajax-loader.gif")"/>
+        <img alt="Loading" src="@Url.Content("~/Content/Images/ajax-loader.gif")" />
     </div>
 </div>
 
-<script src="~/Scripts/jquery-1.10.2.js"></script>
-<script type="text/javascript">
-    var BlockNumber = 1;
-    var HasBooks = true;
-    var inProgress = false;
-    var dataRequested = false;
-    
-    $(window).scroll(function () {
-        if ($(window).scrollTop() == ($(document).height() - $(window).height()) && dataRequested) {
-            getBooks(true);
-        }
-    });
-
-    var getBooks = function (isPageScroll) {
-        if (!isPageScroll) {
-            HasBooks = true;
-            BlockNumber = 1;
-        }
-        if (HasBooks && !inProgress) {
-            inProgress = true;
-            $("#loading-img").show();
-            var data = {
-                BlockNumber: BlockNumber,
-                IsbnNumbers: $("#isbns").val()
-            };
-
-            $.post("@Url.Action("GetBooks", "Home")", data,
-                function (data) {
-                    HasBooks = data.HasBooks;
-                    BlockNumber = BlockNumber + 1;
-                    if (!isPageScroll) {
-                        dataRequested = true;
-                        $("#book-results").empty();
-                        BlockNumber = 2;
-                    }
-                    $("#book-results").append(data.HtmlString);
-                    $("#loading-img").hide();
-                    inProgress = false;
-                });
-        }
-    }
-</script>
+@Scripts.Render("~/bundles/Home")

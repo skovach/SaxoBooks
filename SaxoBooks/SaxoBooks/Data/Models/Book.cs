@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Data.Entity.ModelConfiguration.Conventions;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
-namespace SaxoBooks.Models
+namespace SaxoBooks.Data.Models
 {
     public class Book
     {

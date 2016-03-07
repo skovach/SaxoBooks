@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
+using SaxoBooks.Data.Models;
 using SaxoBooks.Data.Repository;
-using SaxoBooks.Infrastructure;
-using SaxoBooks.Models;
+using SaxoBooks.Services.Interfaces;
 using SaxoBooks.ViewModels;
 using WebGrease.Css.Extensions;
 
@@ -16,15 +15,16 @@ namespace SaxoBooks.Controllers
     {
         private readonly IRepository<Book> _booksRepository;
         private readonly ISaxoBooksService _saxoService;
+        private readonly IConfigurationReader _configReader;
 
         private readonly string _validationMessage = "Enter a valid Isbn number";
+        private readonly string _noResults = "No books found";
 
-        public int BooksPerRequest { get; } = 5;
-
-        public HomeController(IRepository<Book> repository, ISaxoBooksService saxoService)
+        public HomeController(IRepository<Book> repository, ISaxoBooksService saxoService, IConfigurationReader configurationReader)
         {
             _booksRepository = repository;
-            _saxoService = saxoService
+            _saxoService = saxoService;
+            _configReader = configurationReader;
         }
 
         public ActionResult Index()
@@ -52,6 +52,10 @@ namespace SaxoBooks.Controllers
 
             var result = dbBooks.Concat(booksFromService);
             var jsonResult = BuildJsonViewModel(result);
+            if (blockNumber == 1 && !result.Any())
+            {
+                jsonResult.HtmlString = _noResults;
+            }
             return Json(jsonResult);
         }
 
@@ -84,12 +88,11 @@ namespace SaxoBooks.Controllers
             _booksRepository.SaveChanges();
         }
 
-
         private BooksPartialJsonModel BuildJsonViewModel(IEnumerable<Book> books)
         {
             var booksModel = new BooksPartialJsonModel
             {
-                HasBooks = books.Count() >= BooksPerRequest,
+                HasBooks = books.Count() >= _configReader.BooksPerRequest,
                 HtmlString = RenderPartialViewToString("_GetBooks", books)
             };
             return booksModel;
@@ -98,10 +101,10 @@ namespace SaxoBooks.Controllers
         private List<string> GetIsbnNumbersFromCurrentBlock(int blockNumber, string isbnNumbers)
         {
             if (!RequestDataIsValid(blockNumber, isbnNumbers)) return null;
-            int startIndex = (blockNumber - 1) * BooksPerRequest;
+            int startIndex = (blockNumber - 1) * _configReader.BooksPerRequest;
             var isbns = GetListOfIsbns(isbnNumbers)
                 .Skip(startIndex)
-                .Take(BooksPerRequest).ToList();
+                .Take(_configReader.BooksPerRequest).ToList();
             return isbns;
         }
 

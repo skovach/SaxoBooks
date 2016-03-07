@@ -1,5 +1,5 @@
-﻿@model IEnumerable<SaxoBooks.Models.Book>
-<div id="book-results">
+﻿@model IEnumerable<SaxoBooks.Data.Models.Book>
+<div id="book-results" class="col-md-8 books">
     @if (@Model != null)
     {
         foreach (var book in @Model)

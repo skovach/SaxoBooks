@@ -1,5 +1,4 @@
-﻿using System.Web;
-using System.Web.Optimization;
+﻿using System.Web.Optimization;
 
 namespace SaxoBooks
 {
@@ -14,6 +13,10 @@ namespace SaxoBooks
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));
+
+            bundles.Add(new ScriptBundle("~/bundles/Home").Include(
+                "~/Scripts/jquery-1.10.2.min.js",
+                "~/Scripts/Home/Home.js"));
 
             
 

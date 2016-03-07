@@ -1,8 +1,7 @@
 using System;
 using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.Configuration;
 
-namespace SaxoBooks.App_Start
+namespace SaxoBooks
 {
     /// <summary>
     /// Specifies the Unity configuration for the main container.

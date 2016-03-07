@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Web;
-using System.Web.Compilation;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Mvc;
+using SaxoBooks.Data.Models;
 using SaxoBooks.Data.Repository;
-using SaxoBooks.Infrastructure;
-using SaxoBooks.Models;
+using SaxoBooks.Services;
+using SaxoBooks.Services.Interfaces;
 
 namespace SaxoBooks
 {
@@ -28,7 +23,7 @@ namespace SaxoBooks
 
             container.RegisterType<IRepository<Book>, Repository<Book>>(new PerRequestLifetimeManager());
             container.RegisterType<ISaxoBooksService, SaxoBooksService>(new PerRequestLifetimeManager());
-           
+            container.RegisterType<IConfigurationReader, ConfigurationReader>(new PerRequestLifetimeManager());
             return container;
         }
     }

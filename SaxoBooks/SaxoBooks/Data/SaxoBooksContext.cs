@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Web;
+﻿using System.Data.Entity;
 using SaxoBooks.Data.Configurations;
-using SaxoBooks.Models;
+using SaxoBooks.Data.Models;
 
 namespace SaxoBooks.Data
 {
