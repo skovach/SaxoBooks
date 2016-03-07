@@ -31,6 +31,10 @@
     });
 
     var getBooks = function (isPageScroll) {
+        if (!isPageScroll) {
+            HasBooks = true;
+            BlockNumber = 1;
+        }
         if (HasBooks && !inProgress) {
             inProgress = true;
             $("#loading-img").show();
@@ -46,7 +50,7 @@
                     if (!isPageScroll) {
                         dataRequested = true;
                         $("#book-results").empty();
-                        BlockNumber = 1;
+                        BlockNumber = 2;
                     }
                     $("#book-results").append(data.HtmlString);
                     $("#loading-img").hide();

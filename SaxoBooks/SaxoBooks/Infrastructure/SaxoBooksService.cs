@@ -20,10 +20,11 @@ namespace SaxoBooks.Infrastructure
         private readonly string apiKey = "key=08964e27966e4ca99eb0029ac4c4c217";
         private readonly string apiUrl = "http://api.saxo.com/v1/products/products.json";
         private readonly string startRequest = "?";
-        private readonly string addParam = "&";
+        private readonly string addParam = "&isbn=";
 
         public async Task<IEnumerable<Book>> GetBooksFromService(IEnumerable<string> isbnsToRequest)
         {
+            if (!isbnsToRequest.Any()) return new List<Book>();
             using (HttpClient httpClient = new HttpClient())
             {
                 var query = BuildQueryString(isbnsToRequest.ToList());

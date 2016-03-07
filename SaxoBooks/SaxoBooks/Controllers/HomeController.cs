@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using SaxoBooks.Data.Repository;
 using SaxoBooks.Infrastructure;
@@ -64,7 +66,7 @@ namespace SaxoBooks.Controllers
         {
             var booksModel = new BooksPartialJsonModel
             {
-                HasBooks = books.Count() > BooksPerRequest,
+                HasBooks = books.Count() >= BooksPerRequest,
                 HtmlString = RenderPartialViewToString("_GetBooks", books)
             };
             return booksModel;
@@ -72,12 +74,18 @@ namespace SaxoBooks.Controllers
 
         private List<string> GetIsbnNumbersFromCurrentBlock(int blockNumber, string isbnNumbers)
         {
-            if (blockNumber == 0 || string.IsNullOrEmpty(isbnNumbers)) return null;
-            int startIndex = (blockNumber - 1)*BooksPerRequest;
+            if (!RequestDataIsValid(blockNumber, isbnNumbers)) return null;
+            int startIndex = (blockNumber - 1) * BooksPerRequest;
             var isbns = GetListOfIsbns(isbnNumbers)
                 .Skip(startIndex)
                 .Take(BooksPerRequest).ToList();
             return isbns;
+        }
+
+        private bool RequestDataIsValid(int blockNumber, string isbnNumbers)
+        {
+            Regex digitsOnly = new Regex(@"^\d$");
+            return blockNumber == 0 || string.IsNullOrEmpty(isbnNumbers) || !digitsOnly.IsMatch(isbnNumbers);
         }
 
         private List<Book> GetBooksFromDb(List<string> isbns)
