@@ -17,20 +17,20 @@ namespace SaxoBooks.Controllers
         private readonly IRepository<Book> _booksRepository;
         private readonly ISaxoBooksService _saxoService;
 
+        private readonly string _validationMessage = "Enter a valid Isbn number";
+
         public int BooksPerRequest { get; } = 5;
 
         public HomeController(IRepository<Book> repository, ISaxoBooksService saxoService)
         {
             _booksRepository = repository;
-            _saxoService = saxoService;
-
+            _saxoService = saxoService
         }
 
         public ActionResult Index()
         {
             return View();
         }
-
 
         public ActionResult GetBooks(string isbnNumbers, int blockNumber = 0)
         {
@@ -40,7 +40,7 @@ namespace SaxoBooks.Controllers
                 return Json(new BooksPartialJsonModel()
                 {
                     HasBooks = true,
-                    HtmlString = ""
+                    HtmlString = _validationMessage
                 });
             }
 
@@ -53,6 +53,29 @@ namespace SaxoBooks.Controllers
             var result = dbBooks.Concat(booksFromService);
             var jsonResult = BuildJsonViewModel(result);
             return Json(jsonResult);
+        }
+
+        protected string RenderPartialViewToString(string viewName, object model)
+        {
+            if (string.IsNullOrEmpty(viewName))
+                viewName = ControllerContext.RouteData.GetRequiredString("action");
+
+            ViewData.Model = model;
+
+            using (StringWriter sw = new StringWriter())
+            {
+                ViewEngineResult viewResult = ViewEngines.Engines.FindPartialView(ControllerContext, viewName);
+                ViewContext viewContext = new ViewContext(ControllerContext, viewResult.View, ViewData, TempData, sw);
+                viewResult.View.Render(viewContext, sw);
+
+                return sw.GetStringBuilder().ToString();
+            }
+        }
+
+        private List<Book> GetBooksFromDb(List<string> isbns)
+        {
+            var result = _booksRepository.Query().Where(x => isbns.Contains(x.Isbn)).ToList();
+            return result;
         }
 
         private void SaveNewBooksToDb(IEnumerable<Book> books)
@@ -82,38 +105,17 @@ namespace SaxoBooks.Controllers
             return isbns;
         }
 
-        private bool RequestDataIsValid(int blockNumber, string isbnNumbers)
-        {
-            Regex digitsOnly = new Regex(@"^\d$");
-            return blockNumber == 0 || string.IsNullOrEmpty(isbnNumbers) || !digitsOnly.IsMatch(isbnNumbers);
-        }
-
-        private List<Book> GetBooksFromDb(List<string> isbns)
-        {
-            var result = _booksRepository.Query().Where(x => isbns.Contains(x.Isbn)).ToList();
-            return result;
-        }
-
         private List<string> GetListOfIsbns(string isbnNumbers)
         {
             return isbnNumbers.Replace("\r", "").Split('\n').ToList();
         }
 
-        protected string RenderPartialViewToString(string viewName, object model)
+        private bool RequestDataIsValid(int blockNumber, string isbnNumbers)
         {
-            if (string.IsNullOrEmpty(viewName))
-                viewName = ControllerContext.RouteData.GetRequiredString("action");
-
-            ViewData.Model = model;
-
-            using (StringWriter sw = new StringWriter())
-            {
-                ViewEngineResult viewResult = ViewEngines.Engines.FindPartialView(ControllerContext, viewName);
-                ViewContext viewContext = new ViewContext(ControllerContext, viewResult.View, ViewData, TempData, sw);
-                viewResult.View.Render(viewContext, sw);
-
-                return sw.GetStringBuilder().ToString();
-            }
+            Regex digitsOnly = new Regex(@"^\d$");
+            return blockNumber != 0 
+                && !string.IsNullOrEmpty(isbnNumbers)
+                && !digitsOnly.IsMatch(isbnNumbers);
         }
     }
 }
