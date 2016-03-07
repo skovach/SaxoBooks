@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
@@ -23,15 +24,26 @@ namespace SaxoBooks.Infrastructure
 
         public async Task<IEnumerable<Book>> GetBooksFromService(IEnumerable<string> isbnsToRequest)
         {
-            string uri = apiUrl + startRequest + apiKey;
             using (HttpClient httpClient = new HttpClient())
             {
-                var result = httpClient.GetStringAsync(uri).Result;
+                var query = BuildQueryString(isbnsToRequest.ToList());
+                var result = httpClient.GetStringAsync(query).Result;
                 var settings = new JsonSerializerSettings();
-                settings.DateFormatString = "YYYY-MM-DD";
+                settings.DateFormatString = "MM-DD-YYYY";
                 settings.ContractResolver = new SaxoBooksContractResolver();
                 return JsonConvert.DeserializeObject<ResponseRootObjectModel>(result, settings).Products;
             }
+        }
+
+        private string BuildQueryString(List<string> isbnsToRequest)
+        {
+            var builder = new StringBuilder();
+            builder.Append(apiUrl);
+            builder.Append(startRequest);
+            builder.Append(apiKey);
+            builder.Append(addParam);
+            builder.Append(string.Join(addParam, isbnsToRequest));
+            return builder.ToString();
         }
     }
 }

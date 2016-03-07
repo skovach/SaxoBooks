@@ -1,68 +1,57 @@
-﻿@model SaxoBooks.ViewModels.BooksViewModel
+﻿@model IEnumerable<SaxoBooks.Models.Book>
 @{
     ViewBag.Title = "Saxo Books";
 }
 
 <div class="row">
     <div class="col-md-4 text-area-wrapper">
-        @*@using (Ajax.BeginForm("GetBooks", "Home", new AjaxOptions()
-        {
-            HttpMethod = "POST",
-            InsertionMode = InsertionMode.Replace,
-            UpdateTargetId = "bookResults"
-        }))
-        {
-
-            @Html.TextAreaFor(x => x.IsbnNumbers, new { placeholder = "ISBNs", @class = "IsbnTextArea" })
-            <input type="submit" text="Get Books" style="float: right" />
-        }*@
-        <textarea id="isbns" placeholder="Input Isbn13 numbers"> </textarea>
-        <a href="#" onclick="getPartialView('GetBooks', 'Home', '#bookResults')">Get</a>
+        <h1>Saxo Books Service</h1>
+        <textarea id="isbns" placeholder="Input Isbn numbers"></textarea>
+        <a href="#" onclick="getBooks(false)">Get</a>
     </div>
     <div class="col-md-8 books">
-        @Html.Partial("_GetBooks")
+        @{Html.RenderPartial("_GetBooks");}
     </div>
-
-
+    <div id="loading-img" style="text-align: center; display: none; margin-bottom: 20px;">
+        <img alt="Loading" src="@Url.Content("~/Content/Images/ajax-loader.gif")"/>
+    </div>
 </div>
 
+<script src="~/Scripts/jquery-1.10.2.js"></script>
 <script type="text/javascript">
-    function getPartialView(action, controller, divId) {
-        var url = "/" + controller + "/" + action + "/";
-        $.ajax({
-            type: "GET",
-            url: url,
-            dataType: 'text',
-            data: $("#isbns").val(),
-            success: function (data, textStatus, jqXHR) {
-                var ct = jqXHR.getResponseHeader("Content-Type");
-                var mx = ct.match("text\/html");
-                if (mx != null) {
-                    $(divId).html(data);
-                }
-                else {
-                    var res = data;
-                }
-            },
-            error: function (res) {
-                var data = res;
-            }
-        });
+    var BlockNumber = 1;
+    var HasBooks = true;
+    var inProgress = false;
+    var dataRequested = false;
+    
+    $(window).scroll(function () {
+        if ($(window).scrollTop() == ($(document).height() - $(window).height()) && dataRequested) {
+            getBooks(true);
+        }
+    });
+
+    var getBooks = function (isPageScroll) {
+        if (HasBooks && !inProgress) {
+            inProgress = true;
+            $("#loading-img").show();
+            var data = {
+                BlockNumber: BlockNumber,
+                IsbnNumbers: $("#isbns").val()
+            };
+
+            $.post("@Url.Action("GetBooks", "Home")", data,
+                function (data) {
+                    HasBooks = data.HasBooks;
+                    BlockNumber = BlockNumber + 1;
+                    if (!isPageScroll) {
+                        dataRequested = true;
+                        $("#book-results").empty();
+                        BlockNumber = 1;
+                    }
+                    $("#book-results").append(data.HtmlString);
+                    $("#loading-img").hide();
+                    inProgress = false;
+                });
+        }
     }
-
-    //var getBooks = $.ajax({
-    //    type: "GET",
-    //    url: "/Home/GetBooks/",
-    //    data: someArguments,
-    //    success: function (result) {
-
-    //        var data = result;
-
-    //        //$("#bookResults").html(result); //the HTML I returned from the controller
-    //    },
-    //    error: function (errorData) {
-    //        var data = errorData;
-    //        alert(data);
-    //    }
-    //});
 </script>
