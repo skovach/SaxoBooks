@@ -27,15 +27,16 @@ a:hover {
 
 .text-area-wrapper {
     width: auto;
-    height: 500px;
+    height: 60%;
     position: fixed;
 }
 
 .isbn-text-area {
     border: solid 1px black;
     min-width: 100%;
-    height: 500px;
+    height: 100%;
     margin-top: 10px;
+    resize: none;
 }
 
 .book-image-wrapper {
@@ -50,7 +51,7 @@ a:hover {
 }
 
 .books {
-    margin-top: 30px;
+    margin-top: 35px;
 }
 
 .get-books-button {
@@ -62,6 +63,7 @@ a:hover {
     background-color: gray;
     color: white;
     display: block;
+    margin-top: 10px;
 }
 
 .footer {
